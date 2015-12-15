@@ -1,0 +1,78 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 25/11/2015, 12:30:30 PM
+    Author     : PC
+*/
+body{
+    background: black url(http://fondosbonitos.com/web/wallpapers/locura-de-luces/1920x1080.jpg);
+    margin: auto;
+    padding: 50px;
+}
+
+#grupos{    
+    border-radius: 12px;
+/*    height: 250px;*/
+    padding: 5px;
+    background: rgba(0,0,0,0.1);
+}
+
+#lado h1{
+    color: white;   
+    font-family: arial; 
+}
+
+#chat{
+    //margin: auto;   
+    float: left;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.3);
+    padding: 15px;
+    width: 450px;
+    height: 550px;
+}
+
+.mens{
+    border-radius: 10px;
+    width: 430px;
+    height: 850px;
+    background: white;
+    padding: 10px;
+}
+
+#emotic{
+    width: 100px;
+    height: 100px;
+}
+#titulo{
+    margin: auto;
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+    margin-bottom: 5%;
+    width: 100%;
+    height: 60px;
+}
+
+#titulo h1{
+    padding-left: 40%;
+    color: white;
+    font-family: sans-serif;
+}
+
+.menviado{
+    width: 320px;
+}
+
+#lado{
+    float: left;
+    height: 550px;
+    background: rgba(255,255,255,0.3);
+    padding: 20px;
+    border-radius: 20px;
+    margin-right: 6%;
+    margin-left: 20%
+    
+}

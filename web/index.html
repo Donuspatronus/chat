@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>GossipChat</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="estilo.css">        
+    </head>
+    <body> 
+        <div id="titulo">
+            <h1>Gossip-Chat</h1>
+        </div>
+        <div id="lado">
+                <div>
+                    <div>
+                        Agrega un grupo
+                    </div>
+                    <div>
+                        <input type="text" id="grupoNombre" placeholder="Nombre del grupo">
+                        <br>
+                        <button type="button" id="enviaGrupo">Agregar</button>
+                        <br>
+                    </div>
+                </div>
+            
+                <div>
+                    <div>                    
+                        <div id="grupos">
+                            <input type='radio' name='grupo' checked onclick='cambio()' value='inicial'/>inicial<br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <div id="chat">
+            <div>
+                <div>
+                    <div id="cualquiera">
+                        Mensajes                                            
+                    </div>
+                    <div>
+                        <div class="mens" id="mensajes"></div> 
+                    </div>
+                </div>
+                <div>                  
+                    <div id="caritas">                        
+                        <img src="img/e1.png" width="30" height="30" onclick='emtcn("e1")'>
+                        <img src="img/e2.png" width="30" height="30" onclick='emtcn("e2")'>
+                        <img src="img/e3.png" width="30" height="30" onclick='emtcn("e3")'>
+                        <img src="img/e4.png" width="30" height="30" onclick='emtcn("e4")'>
+                        <img src="img/e5.png" width="30" height="30" onclick='emtcn("e5")'>
+                        <img src="img/e6.png" width="30" height="30" onclick='emtcn("e6")'>
+                        <img src="img/e7.png" width="30" height="30" onclick='emtcn("e7")'>
+                        <img src="img/e8.png" width="30" height="30" onclick='emtcn("e8")'>
+                        <img src="img/e9.png" width="30" height="30" onclick='emtcn("e9")'>
+                        <img src="img/e10.png" width="30" height="30" onclick='emtcn("e10")'>
+                        <img src="img/e11.png" width="30" height="30" onclick='emtcn("e11")'>                        
+                    </div>
+                    <div>
+                        Usuario:
+                        <input type="text" id="user" placeholder="Nombre de usuario"><br>
+                        Mensaje:<textarea id="mensaje" rows="3" placeholder="Escribe tu Mensaje"></textarea>
+                        <br>
+                        <button type="button" id="enviar">Enviar</button>
+                    </div>
+                </div>
+            </div>            
+        </div>            
+        
+        <script>
+            var aux="inicial";
+            function cambio(){
+                //para cuando cambia de grupo
+                var sala;
+                sala=seleccionado();
+                document.getElementById("cualquiera").innerHTML="<h4>Sala: "+sala+"</h4>";
+            }
+            
+            function seleccionado(){//regresa el valor del rio seleccionado
+                var sala;
+                var grupo=document.getElementsByName("grupo");
+                for(var i=0;i<grupo.length;i++){
+                    if(grupo[i].type === 'radio' && grupo[i].checked){
+                        sala=grupo[i].value;
+                    }                    
+                }
+                return sala;
+            }
+            //variables para cachar el mensaje, el usuario, grupo
+            //elemento que contiene el mensaje a enviar
+            var msj=document.getElementById("mensaje");
+            //elemento que contiene los mensajes que han sido enviados
+            var msjs=document.getElementById("mensajes");
+            //elemento que contiene el nombre del usuario
+            var user=document.getElementById("user");
+            //elemento que contiene el nombre del grupo que se va agregar
+            var nombreGrupo=document.getElementById("grupoNombre"); 
+            //variable para el emoticon
+            var emmoji;
+            
+            
+            var evtSource =new EventSource("http://localhost:8080/serverSent/ChatServlet");
+            evtSource.onmessage=function(e){
+                var data = JSON.parse(e.data);
+                var l;
+                //INSTRUCCIONES UNICAMENTE PARA HACER MOVIMIENTOS CON LOS GRUPOS!!
+                //div donde alojan los grupos
+                var grupo=document.getElementById("grupos");
+                //todos los raiodbuttons con los nombres de las salas disponibles
+                var grupo2=document.getElementsByName("grupo");
+                //se toma el numero total de salas que hay dispponibles!
+                gl=grupo2.length;
+                //arreglo de grupos
+                var grupo3=[];                
+                
+                //PARA ELIMINAR GRUPOS DESPUES DE UN TIEMPO
+                document.getElementsByName("grupo");
+                //checa que el grupo a eliminar no sea el incial
+                if(data.eliminar!==aux){
+                    //imprime que grupo se elimina
+                    console.log("A eliminar "+data.eliminar+ " "+gl);
+                    //se llena el arreglo de los grupos disponibles
+                    for(i=0;i<gl;i++){
+                        grupo3[i]=grupo2[i].value;
+                    }
+                    //se borran los grupos y se agrega el inicial
+                    document.getElementById("grupos").innerHTML="<input type='radio' name='grupo' onclick='cambio()' value='inicial'/>inicial<br>";
+                    //se agregan los demas grupos que siguen disponibles
+                    for(i=0;i<gl;i++){
+                        if(grupo3[i]!=="inicial"&&grupo3[i]!==data.eliminar){
+                            document.getElementById("grupos").innerHTML+="<input type='radio' name='grupo' onclick='cambio()' value='"+grupo3[i]+"'/>"+grupo3[i]+"<br>";                       
+                        }
+
+                    }
+                    aux=data.eliminar;
+                }                
+                //INSTRUCCIONES UNICAMENTE PARA CACHAR MENSAJES Y MOSTRARLOS!!
+                //verifica que el usuario y el mensaje no sean nulos
+                if(data.user!=="null" || data.message!=="null"){
+                    //se asigna a una variable el usuario y el mensaje para agregarlos a los mensajes enviados!
+                    var received="<b>"+data.user+"</b>: "+data.message+ "\n";
+                    //llama a la funcion para saber que sala se encuentra seleecionada!
+                    sala=seleccionado();
+                    //se imprime que sala esta seleccionada
+                    console.log("sala seleccionada    "+sala+"  "+data.sala);
+                    //checa si la sala seleccionada es igual a la sala de donde se manda el mensaje se agrega el mensaje
+                    if(sala===data.sala){
+                        msjs.innerHTML+=received+"<br>";   
+                    }              
+                }               
+            };
+            //para agregar un grupo
+           evtSource.addEventListener('agregaGrupo',function(e){
+                //se imprime el conjunto de datos
+                console.log(e);
+                //se asigna a una variable los datos recibidos
+                var data = JSON.parse(e.data);
+                //si el valor de grupo es diferente de null se agrega el grupo!
+                if(data.grupo!=="null"){
+                    document.getElementById("grupos").innerHTML+="<input type='radio' name='grupo' checked onclick='cambio()' value='"+data.grupo+"'/>"+data.grupo+"<br>";
+                }
+                
+            });           
+            //funcion de error!
+            evtSource.onerror=function(e){
+                alert("Ha ocurrido un error! Ups");
+            };
+            //*****************INICIO EMOTICON*************************************************
+            /*function emtcn(elegido){
+                evtSource.addEventListener('emoji',function(e){
+                    //tomamos el valor del emoticon
+                    emmoji=elegido;
+                    //se imprime el conjunto de datos
+                    console.log(e);
+                    //se asigna a una variable los datos recibidos
+                    var data = JSON.parse(e.data);
+                    //hay emoticon y usuario se agrega el emoticon!!!
+                    if(data.emoticon!=="null" && data.user!=="null"){
+                        msjs.innerHTML+="<b>"+data.user+": </b><img src=\"img/"+data.emoticon+".png\" width=35px height=35px><br>";                        
+                    }    
+                   /************************************************/                   
+               // });             
+            
+            //}           
+            /*****************************FIN DE EMOTICON*************************************************************/
+            
+    
+            /*INSTRUCCIONES PARA ENVIAR AL SERVLET*/
+            //instrucciones unicamente para enviar el grupo
+            //se asina a una variable el valor del boton para agregar el grupo
+            var enviaGrupo=document.getElementById("enviaGrupo");
+           //se le agrega el evento del click al boton para agregar grupos
+            enviaGrupo.addEventListener('click',function(){
+                //se imprime que se hizo clic en el boton de agregar grupo
+                console.log('CLICK!!!');                
+                var request =new XMLHttpRequest();
+                request.addEventListener('load', function(){
+                    console.log('MANDAR GRUPO!!!');
+                });
+                request.open('POST','http://localhost:8080/serverSent/ChatServlet',true);
+                request.setRequestHeader("Content-type","application/x-www-form-urlencoded; charset=utf-8");                
+                //se envia unicamente el grupo
+                request.send("grupo="+nombreGrupo.value);
+            });
+            
+            //instrucciones para enviar unicamente el usuario y los mensajes!!
+            var message=document.getElementById("enviar");            
+            message.addEventListener('click',function(){
+                var request =new XMLHttpRequest();
+                request.addEventListener('load', function(){
+                    console.log('message sent!');
+                });
+                //se asigna a una variable la coleccion de grupos que se encuentran disponibles!
+                var grupo=document.getElementsByName("grupo");
+                var sala;
+                for(var i=0;i<grupo.length;i++){
+                    //si el tipo de radiobutton ees igual a radiobutton en la posicion i y el grupo elegido en la posicion i esta seleccionado
+                    if(grupo[i].type === 'radio' && grupo[i].checked){
+                        //sala obtiene el valor de el grupo seleccionado!
+                        sala=grupo[i].value;
+                    }
+                    
+                }                
+                request.open('POST','http://localhost:8080/serverSent/ChatServlet',true);
+                request.setRequestHeader("Content-type","application/x-www-form-urlencoded; charset=utf-8");
+                //se envia el mensaje,el usuario y la sala
+                request.send("text="+msj.value+"&user="+user.value+"&sala="+sala);
+            });            
+            /********************************************************************************************/           
+                 //instrucciones para enviar unicamente el usuario y los emoticones!!
+               /*var emoji=document.getElementById(emmoji);            
+                emoji.addEventListener('click',function(){
+                    var request =new XMLHttpRequest();
+                    request.addEventListener('load', function(){
+                    console.log('enviando emoticon...');
+                });                               
+                request.open('POST','http://localhost:8080/serverSent/ChatServlet',true);
+                request.setRequestHeader("Content-type","application/x-www-form-urlencoded; charset=utf-8");
+                //se envia el mensaje,el usuario y la sala
+                request.send("emoticon="+emmoji+"&user="+user.value);
+            });*/
+            </script>            
+    </body>   
+</html>
